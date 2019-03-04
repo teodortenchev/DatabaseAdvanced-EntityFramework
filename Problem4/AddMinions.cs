@@ -20,13 +20,10 @@ namespace Problem4
                 string minionTown = minionInfo[3];
                 string villainName = villain[1];
 
-                //Check if town exists in DB and add it if not
                 CheckTownInDB(connection, minionTown);
 
-                //Check if villain exists in DB and add if not
                 CheckVillainInDB(connection, villainName);
 
-                //Add minion to DB.
                 AddMinionToDB(connection, minionName, minionAge, minionTown, villainName);
 
                 AssignMinionToVillain(connection, minionName, villainName);
@@ -38,14 +35,24 @@ namespace Problem4
             int villainId = CheckVillainInDB(connection, villainName);
             int minionId = GetMinionId(connection, minionName);
 
-            string assignMinionVillain = "INSERT INTO MinionsVillains (MinionId, VillainId) VALUES (@villainId, @minionId)";
+            string assignMinionVillain = "INSERT INTO MinionsVillains (MinionId, VillainId) VALUES (@minionId, @villainId)";
 
             using (SqlCommand command = new SqlCommand(assignMinionVillain, connection))
             {
                 command.Parameters.AddWithValue("@villainId", villainId);
-                int rowsAffected = command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@minionId", minionId);
 
-                if(rowsAffected > 0)
+                int rowsAffected = 0;
+
+                try
+                {
+                    rowsAffected = (int)command.ExecuteNonQuery();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine($"{minionName} is already a slave of {villainName}");
+                }
+                if (rowsAffected > 0)
                 {
                     Console.WriteLine($"Successfully added {minionName} to be minion of {villainName}.");
                 }
@@ -54,14 +61,14 @@ namespace Problem4
 
         private static int GetMinionId(SqlConnection connection, string minionName)
         {
-            string minionIdQuery = "SELECT Id FROM Minions WHERE Name = @Name"; 
+            string minionIdQuery = "SELECT Id FROM Minions WHERE Name = @Name";
 
             using (SqlCommand command = new SqlCommand(minionIdQuery, connection))
             {
                 command.Parameters.AddWithValue("@Name", minionName);
                 int? minionID = (int?)command.ExecuteScalar();
 
-                if(minionID == null)
+                if (minionID == null)
                 {
                     throw new InvalidOperationException("Could not find minion. Looks like he ran away...");
                 }
@@ -84,14 +91,13 @@ namespace Problem4
 
                 int rowsAffected = command.ExecuteNonQuery();
 
-                if (rowsAffected > 0)
+                if (rowsAffected <= 0)
                 {
-                    Console.WriteLine($"Successfully added {minionName} to be a servant of {villainName}");
+                    throw new InvalidOperationException("Something went wrong while attempting to add minion to DB");
                 }
 
             }
 
-            Console.WriteLine("Something went wrong while attempting to add minion to DB");
         }
 
         private static int CheckTownInDB(SqlConnection connection, string minionTown)
@@ -185,7 +191,7 @@ namespace Problem4
             }
         }
 
-      
+
 
     }
 }

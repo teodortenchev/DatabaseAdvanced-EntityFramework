@@ -8,33 +8,47 @@ namespace Problem4
     {
         static void Main(string[] args)
         {
+            string[] minionInfo = Console.ReadLine().Split();
+            string[] villain = Console.ReadLine().Split();
+
+            string minionName = minionInfo[1];
+            int minionAge = int.Parse(minionInfo[2]);
+            string minionTown = minionInfo[3];
+            string villainName = villain[1];
+
             using (SqlConnection connection = new SqlConnection(Configuration.ConnectionString))
             {
                 connection.Open();
 
-                string[] minionInfo = Console.ReadLine().Split();
-                string[] villain = Console.ReadLine().Split();
+                int? townId = GetTownByName(connection, minionTown);
 
-                string minionName = minionInfo[1];
-                int minionAge = int.Parse(minionInfo[2]);
-                string minionTown = minionInfo[3];
-                string villainName = villain[1];
+                if (townId == null)
+                {
+                    AddTown(connection, minionTown);
+                }
 
-                CheckTownInDB(connection, minionTown);
+                townId = GetTownByName(connection, minionTown);
 
-                CheckVillainInDB(connection, villainName);
+                AddMinion(connection, minionName, minionAge, (int)townId);
 
-                AddMinionToDB(connection, minionName, minionAge, minionTown, villainName);
+                int? villainId = GetVillainByName(connection, villainName);
 
-                AssignMinionToVillain(connection, minionName, villainName);
+                if (villainId == null)
+                {
+                    AddVillain(connection, villainName);
+                }
+
+                villainId = GetVillainByName(connection, villainName);
+
+                int minionId = GetMinionByName(connection, minionName);
+
+                AssignMinionToVillain(connection, minionId, villainId, minionName, villainName);
             }
         }
 
-        private static void AssignMinionToVillain(SqlConnection connection, string minionName, string villainName)
-        {
-            int villainId = CheckVillainInDB(connection, villainName);
-            int minionId = GetMinionId(connection, minionName);
 
+        private static void AssignMinionToVillain(SqlConnection connection, int minionId, int? villainId, string minionName, string villainName)
+        {
             string assignMinionVillain = "INSERT INTO MinionsVillains (MinionId, VillainId) VALUES (@minionId, @villainId)";
 
             using (SqlCommand command = new SqlCommand(assignMinionVillain, connection))
@@ -59,7 +73,7 @@ namespace Problem4
             }
         }
 
-        private static int GetMinionId(SqlConnection connection, string minionName)
+        private static int GetMinionByName(SqlConnection connection, string minionName)
         {
             string minionIdQuery = "SELECT Id FROM Minions WHERE Name = @Name";
 
@@ -77,17 +91,15 @@ namespace Problem4
             }
         }
 
-        private static void AddMinionToDB(SqlConnection connection, string minionName, int minionAge, string minionTown, string villainName)
+        private static void AddMinion(SqlConnection connection, string minionName, int minionAge, int townId)
         {
             string insertMinion = "INSERT INTO Minions (Name, Age, TownId) VALUES (@name, @age, @townId)";
 
             using (SqlCommand command = new SqlCommand(insertMinion, connection))
             {
-                int townID = CheckTownInDB(connection, minionTown);
-
                 command.Parameters.AddWithValue("@name", minionName);
                 command.Parameters.AddWithValue("@age", minionAge);
-                command.Parameters.AddWithValue("@townId", townID);
+                command.Parameters.AddWithValue("@townId", townId);
 
                 int rowsAffected = command.ExecuteNonQuery();
 
@@ -100,50 +112,30 @@ namespace Problem4
 
         }
 
-        private static int CheckTownInDB(SqlConnection connection, string minionTown)
+        private static int? GetTownByName(SqlConnection connection, string minionTown)
         {
             string checkTownExists = "SELECT Id FROM Towns WHERE Name = @Name";
-            int townIdResult = 0;
 
             using (SqlCommand command = new SqlCommand(checkTownExists, connection))
             {
                 command.Parameters.AddWithValue("@Name", minionTown);
 
-                int? id = (int?)command.ExecuteScalar();
-
-                if (id == null)
-                {
-                    AddTown(connection, minionTown);
-                }
-
-                townIdResult = (int)command.ExecuteScalar();
-
+                return (int?)command.ExecuteScalar();
             }
 
-            return townIdResult;
+
         }
 
-        private static int CheckVillainInDB(SqlConnection connection, string villainName)
+        private static int? GetVillainByName(SqlConnection connection, string villainName)
         {
             string checkVillainExists = "SELECT Id FROM Villains WHERE Name = @Name";
-            int villainIdResult = 0;
 
             using (SqlCommand command = new SqlCommand(checkVillainExists, connection))
             {
                 command.Parameters.AddWithValue("@Name", villainName);
 
-                int? id = (int?)command.ExecuteScalar();
-
-                if (id == null)
-                {
-                    AddVillain(connection, villainName);
-                }
-
-                villainIdResult = (int)command.ExecuteScalar();
-
+                return (int?)command.ExecuteScalar();
             }
-
-            return villainIdResult;
         }
 
 
@@ -190,8 +182,5 @@ namespace Problem4
 
             }
         }
-
-
-
     }
 }

@@ -29,8 +29,44 @@ namespace Problem4
                 //Add minion to DB.
                 AddMinionToDB(connection, minionName, minionAge, minionTown, villainName);
 
-                //
+                AssignMinionToVillain(connection, minionName, villainName);
+            }
+        }
 
+        private static void AssignMinionToVillain(SqlConnection connection, string minionName, string villainName)
+        {
+            int villainId = CheckVillainInDB(connection, villainName);
+            int minionId = GetMinionId(connection, minionName);
+
+            string assignMinionVillain = "INSERT INTO MinionsVillains (MinionId, VillainId) VALUES (@villainId, @minionId)";
+
+            using (SqlCommand command = new SqlCommand(assignMinionVillain, connection))
+            {
+                command.Parameters.AddWithValue("@villainId", villainId);
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if(rowsAffected > 0)
+                {
+                    Console.WriteLine($"Successfully added {minionName} to be minion of {villainName}.");
+                }
+            }
+        }
+
+        private static int GetMinionId(SqlConnection connection, string minionName)
+        {
+            string minionIdQuery = "SELECT Id FROM Minions WHERE Name = @Name"; 
+
+            using (SqlCommand command = new SqlCommand(minionIdQuery, connection))
+            {
+                command.Parameters.AddWithValue("@Name", minionName);
+                int? minionID = (int?)command.ExecuteScalar();
+
+                if(minionID == null)
+                {
+                    throw new InvalidOperationException("Could not find minion. Looks like he ran away...");
+                }
+
+                return (int)minionID;
             }
         }
 
@@ -149,6 +185,7 @@ namespace Problem4
             }
         }
 
+      
 
     }
 }

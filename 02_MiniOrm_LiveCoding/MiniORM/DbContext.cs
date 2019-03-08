@@ -96,7 +96,7 @@
                 this.connection.InsertEntities(dbSet.ChangeTracker.Added, tableName, columns);
             }
 
-            var modifiedEntities = dbSet.GetModifiedEntities(dbSet).ToArray();
+            var modifiedEntities = dbSet.ChangeTracker.GetModifiedEntities(dbSet).ToArray();
             if (modifiedEntities.Any())
             {
                 this.connection.UpdateEntities(modifiedEntities, tableName, columns);

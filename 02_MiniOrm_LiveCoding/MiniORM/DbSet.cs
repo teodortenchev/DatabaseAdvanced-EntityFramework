@@ -80,11 +80,6 @@
 
         {
             return this.GetEnumerator();
-        }
-
-        public IEnumerable<T> GetModifiedEntities(DbSet<TEntity> dbSet)
-        {
-            throw new NotImplementedException();
-        }
+        } 
     }
 }

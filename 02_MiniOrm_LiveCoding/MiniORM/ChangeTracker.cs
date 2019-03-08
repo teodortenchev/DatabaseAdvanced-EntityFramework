@@ -86,7 +86,6 @@ namespace MiniORM
             return primaryKeys.Select(pk => pk.GetValue(entity));
         }
 
-
         private List<T> CloneEntities(IEnumerable<T> entities)
         {
             var clonedEntities = new List<T>();

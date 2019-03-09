@@ -21,12 +21,12 @@
             StringBuilder sb = new StringBuilder();
 
             var employees = context.Employees
+                            .Where(e => e.Salary > 50000)
                             .Select(e => new
                             {
                                 e.FirstName,
                                 e.Salary
                             })
-                            .Where(e => e.Salary > 50000)
                             .OrderBy(e => e.FirstName)
                             .ToList();
 

@@ -12,45 +12,46 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = AddNewAddressToEmployee(context);
+                string result = GetDepartmentsWithMoreThan5Employees(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string AddNewAddressToEmployee(SoftUniContext context)
+        public static string GetDepartmentsWithMoreThan5Employees(SoftUniContext context)
         {
             StringBuilder sb = new StringBuilder();
 
-            var address = new Address()
+            var departments = context.Departments
+                .Where(d => d.Employees.Count > 5)
+                .OrderBy(d => d.Employees.Count)
+                .ThenBy(d => d.Name)
+                .Select(x => new
+                {
+                    DepartmentName = x.Name,
+                    ManagerFullName = x.Manager.FirstName + ' ' + x.Manager.LastName,
+                    Employees = x.Employees
+                        .Select(e => new
+                        {
+                            EmployeeFullName = e.FirstName + ' ' + e.LastName,
+                            EmployeeJobTitle = e.JobTitle
+                        })
+                        .OrderBy(e => e.EmployeeFullName)
+                        .ToList()
+                }).ToList();
+
+
+            foreach (var department in departments)
             {
-                AddressText = "Vitoshka 15",
-                TownId = 4
+                sb.AppendLine($"{department.DepartmentName} - {department.ManagerFullName}");
 
-            };
-
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
-                .Take(10)
-                .ToList();
-
-            foreach (var addr in employeeAddresses)
-            {
-                sb.AppendLine(addr);
+                foreach (var employee in department.Employees)
+                {
+                    sb.AppendLine($"{employee.EmployeeFullName} - {employee.EmployeeJobTitle}");
+                }
             }
 
             return sb.ToString().TrimEnd();
-            
+
         }
     }
 }

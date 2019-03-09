@@ -21,36 +21,33 @@
         {
             StringBuilder sb = new StringBuilder();
 
-            var address = new Address()
+            var employe147 = context.Employees
+                .Where(x => x.EmployeeId == 147)
+                .Select(e => new
+                {
+                    FullName = e.FirstName + ' ' + e.LastName,
+                    JobTitle = e.JobTitle,
+                    Projects = e.EmployeesProjects
+                        .Select(p => new
+                        {
+                            ProjectName = p.Project.Name
+                        })
+                        .OrderBy(project => project.ProjectName)
+                })
+                .FirstOrDefault();
+
+            if (employe147 != null)
             {
-                AddressText = "Vitoshka 15",
-                TownId = 4
+                sb.AppendLine($"{employe147.FullName} - {employe147.JobTitle}");
 
-            };
-
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
-                .Take(10)
-                .ToList();
-
-            foreach (var addr in employeeAddresses)
-            {
-                sb.AppendLine(addr);
+                foreach (var project in employe147.Projects)
+                {
+                    sb.AppendLine(project.ProjectName);
+                }
             }
-
+           
             return sb.ToString().TrimEnd();
-            
-        }
+
     }
+}
 }

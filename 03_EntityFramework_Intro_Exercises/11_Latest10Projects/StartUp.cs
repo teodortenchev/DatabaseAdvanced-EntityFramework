@@ -5,6 +5,7 @@
     using SoftUni.Models;
     using System.Linq;
     using System.Text;
+    using System.Globalization;
 
     public class StartUp
     {
@@ -12,41 +13,34 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = AddNewAddressToEmployee(context);
+                string result = GetLatestProjects(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string AddNewAddressToEmployee(SoftUniContext context)
+        public static string GetLatestProjects(SoftUniContext context)
         {
             StringBuilder sb = new StringBuilder();
 
-            var address = new Address()
-            {
-                AddressText = "Vitoshka 15",
-                TownId = 4
-
-            };
-
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
+            var projects = context.Projects
+                .Select(p => new
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    StartDate = p.StartDate
+                })
+                .ToList()
+                .OrderByDescending(p => p.StartDate)
                 .Take(10)
+                .ToList()
+                .OrderBy(p => p.Name)
                 .ToList();
 
-            foreach (var addr in employeeAddresses)
+            foreach (var project in projects)
             {
-                sb.AppendLine(addr);
+                sb.AppendLine(project.Name);
+                sb.AppendLine(project.Description);
+                sb.AppendLine(project.StartDate.ToString("M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture));
             }
 
             return sb.ToString().TrimEnd();

@@ -33,7 +33,7 @@
                         ProjectName = p.Project.Name,
                         StartDate = p.Project.StartDate,
                         EndDate = p.Project.EndDate
-                    })
+                    }).ToList()
                 })
                 .Take(10)
                 .ToList();

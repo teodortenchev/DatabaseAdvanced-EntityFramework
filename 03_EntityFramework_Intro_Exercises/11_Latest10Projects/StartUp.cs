@@ -5,7 +5,7 @@
     using SoftUni.Models;
     using System.Linq;
     using System.Text;
-
+    using System.Globalization;
 
     public class StartUp
     {
@@ -13,30 +13,38 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = IncreaseSalaries(context);
+                string result = GetLatestProjects(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string IncreaseSalaries(SoftUniContext context)
+        public static string GetLatestProjects(SoftUniContext context)
         {
             StringBuilder sb = new StringBuilder();
 
-            var employees = context.Employees
-                .Where(e => e.Department.Name == "Engineering" || e.Department.Name == "Tool Design"
-                        || e.Department.Name == "Marketing" || e.Department.Name == "Information Services")
-                .OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToList();
+            var projects = context.Projects
+                .Select(p => new
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    StartDate = p.StartDate
+                })
+                .ToList()
+                .OrderByDescending(p => p.StartDate)
+                .Take(10)
+                .ToList()
+                .OrderBy(p => p.Name)
+                .ToList();
 
-            foreach (var employee in employees)
+            foreach (var project in projects)
             {
-                employee.Salary *= 1.12M;
-                sb.AppendLine($"{employee.FirstName} {employee.LastName} (${employee.Salary:F2})");
+                sb.AppendLine(project.Name);
+                sb.AppendLine(project.Description);
+                sb.AppendLine(project.StartDate.ToString("M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture));
             }
 
-            context.SaveChanges();
-
             return sb.ToString().TrimEnd();
-
+            
         }
     }
 }

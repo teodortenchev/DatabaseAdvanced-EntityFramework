@@ -20,9 +20,12 @@
         public static string DeleteProjectById(SoftUniContext context)
         {
             int projectId = 2;
+
             Project project = context.Projects.Find(projectId);
 
-            int employeeId = context.EmployeesProjects.Where(p => p.ProjectId == projectId).Select(e => e.EmployeeId).First();
+            int employeeId = context.EmployeesProjects
+                .Where(p => p.ProjectId == projectId)
+                .Select(e => e.EmployeeId).First();
 
             EmployeeProject[] employeeProject = context.EmployeesProjects.Where(ep => ep.ProjectId == projectId).ToArray();
 
@@ -30,6 +33,7 @@
             {
                 context.Remove(ep);
             }
+
             context.Remove(project);
             context.SaveChanges();
 

@@ -1,10 +1,8 @@
 ﻿namespace SoftUni
 {
-    using System;
     using SoftUni.Data;
-    using SoftUni.Models;
+    using System;
     using System.Linq;
-    using System.Text;
 
     public class StartUp
     {
@@ -12,45 +10,42 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = AddNewAddressToEmployee(context);
+                string result = RemoveTown(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string AddNewAddressToEmployee(SoftUniContext context)
+        public static string RemoveTown(SoftUniContext context)
         {
-            StringBuilder sb = new StringBuilder();
+            var town = context.Towns.FirstOrDefault(t => t.Name == "Seattle");
 
-            var address = new Address()
-            {
-                AddressText = "Vitoshka 15",
-                TownId = 4
+            var townId = context.Towns
+                .Where(t => t.Name == "Seattle")
+                .Select(t => t.TownId)
+                .FirstOrDefault();
 
-            };
+            int addressId = context.Addresses
+                .Where(a => a.TownId == townId)
+                .Select(x => x.AddressId).FirstOrDefault();
+                
 
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
-                .Take(10)
+            var addressesWithTown = context.Addresses
+                .Where(t => t.TownId == townId)
                 .ToList();
 
-            foreach (var addr in employeeAddresses)
-            {
-                sb.AppendLine(addr);
-            }
+            var employees = context.Employees.Where(e => e.AddressId == addressId).ToList();
 
-            return sb.ToString().TrimEnd();
-            
+            employees.ForEach(e => e.AddressId = null);
+
+            context.Addresses.RemoveRange(addressesWithTown);
+            context.Towns.Remove(town);
+
+
+            context.SaveChanges();
+
+
+
+            return $"{addressesWithTown.Count} addresses in Seattle were deleted."; 
         }
     }
 }

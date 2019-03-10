@@ -5,6 +5,7 @@
     using SoftUni.Models;
     using System.Linq;
     using System.Text;
+    using Microsoft.EntityFrameworkCore;
 
     public class StartUp
     {
@@ -20,13 +21,14 @@
         public static string GetEmployeesByFirstNameStartingWithSa(SoftUniContext context)
         {
             var employees = context.Employees
-                    .Select(e => new
+                .Where(e => EF.Functions.Like(e.FirstName, "Sa%"))
+                .Select(e => new
                     {
                         FullName = e.FirstName + " " + e.LastName,
                         e.JobTitle,
                         e.Salary
                     })
-                .Where(e => e.FullName.StartsWith("Sa"))
+                
                 .OrderBy(e => e.FullName)
                 .ToList();
 

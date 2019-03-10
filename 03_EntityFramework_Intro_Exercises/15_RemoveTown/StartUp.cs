@@ -33,7 +33,7 @@
                 .Where(t => t.TownId == townId)
                 .ToList();
 
-            var employees = context.Employees.Where(e => e.AddressId == addressId).ToList();
+            var employees = context.Employees.Where(e => e.Address.TownId == townId).ToList();
 
             employees.ForEach(e => e.AddressId = null);
 

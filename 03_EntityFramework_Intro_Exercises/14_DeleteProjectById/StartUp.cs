@@ -12,45 +12,35 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = AddNewAddressToEmployee(context);
+                string result = DeleteProjectById(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string AddNewAddressToEmployee(SoftUniContext context)
+        public static string DeleteProjectById(SoftUniContext context)
         {
+            int projectId = 2;
+            Project project = context.Projects.Find(projectId);
+
+            int employeeId = context.EmployeesProjects.Where(p => p.ProjectId == projectId).Select(e => e.EmployeeId).First();
+
+            EmployeeProject[] employeeProject = context.EmployeesProjects.Where(ep => ep.ProjectId == projectId).ToArray();
+
+            foreach (var ep in employeeProject)
+            {
+                context.Remove(ep);
+            }
+            context.Remove(project);
+            context.SaveChanges();
+
             StringBuilder sb = new StringBuilder();
 
-            var address = new Address()
+            foreach (var p in context.Projects.Take(10).ToList())
             {
-                AddressText = "Vitoshka 15",
-                TownId = 4
-
-            };
-
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
-                .Take(10)
-                .ToList();
-
-            foreach (var addr in employeeAddresses)
-            {
-                sb.AppendLine(addr);
+                sb.AppendLine(p.Name);
             }
-
             return sb.ToString().TrimEnd();
-            
+
         }
     }
 }

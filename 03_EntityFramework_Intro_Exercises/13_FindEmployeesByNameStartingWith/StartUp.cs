@@ -12,45 +12,33 @@
         {
             using (var context = new SoftUniContext())
             {
-                string result = AddNewAddressToEmployee(context);
+                string result = GetEmployeesByFirstNameStartingWithSa(context);
                 Console.WriteLine(result);
             }
         }
 
-        public static string AddNewAddressToEmployee(SoftUniContext context)
+        public static string GetEmployeesByFirstNameStartingWithSa(SoftUniContext context)
         {
-            StringBuilder sb = new StringBuilder();
-
-            var address = new Address()
-            {
-                AddressText = "Vitoshka 15",
-                TownId = 4
-
-            };
-
-            //Entity Framework can add the below automatically if it does not exist, so not needed
-            context.Addresses.Add(address);
-
-            var nakov = context.Employees
-                .FirstOrDefault(x => x.LastName == "Nakov");
-
-            nakov.Address = address;
-
-            context.SaveChanges();
-        
-            var employeeAddresses = context.Employees
-                .OrderByDescending(x => x.AddressId)
-                .Select(x => x.Address.AddressText)
-                .Take(10)
+            var employees = context.Employees
+                    .Select(e => new
+                    {
+                        FullName = e.FirstName + " " + e.LastName,
+                        e.JobTitle,
+                        e.Salary
+                    })
+                .Where(e => e.FullName.StartsWith("Sa"))
+                .OrderBy(e => e.FullName)
                 .ToList();
 
-            foreach (var addr in employeeAddresses)
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var employee in employees)
             {
-                sb.AppendLine(addr);
+                sb.AppendLine($"{employee.FullName} - {employee.JobTitle} - (${employee.Salary:F2})");
             }
 
+
             return sb.ToString().TrimEnd();
-            
         }
     }
 }

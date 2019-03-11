@@ -45,7 +45,7 @@
 
 
 
-            return $"{addressesWithTown.Count} addresses in Seattle were deleted."; 
+            return $"{addressesWithTown.Count} addresses in Seattle were deleted"; 
         }
     }
 }

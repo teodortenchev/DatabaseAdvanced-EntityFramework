@@ -1,8 +1,8 @@
-﻿using System;
-
-namespace _1_HospitalDatabase
+﻿namespace P01_HospitalDatabase 
 {
-    class Program
+    using System;
+
+    public class StartUp
     {
         static void Main(string[] args)
         {

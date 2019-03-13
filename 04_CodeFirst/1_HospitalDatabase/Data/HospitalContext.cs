@@ -28,6 +28,8 @@
         {
             ConfigurePatientEntity(modelBuilder);
 
+            ConfigureDoctorEntity(modelBuilder);
+
             ConfigureVisitationEntity(modelBuilder);
 
             ConfigureDiagnoseEntity(modelBuilder);
@@ -36,6 +38,22 @@
 
             ConfigurePatientMedicamentEntity(modelBuilder);
 
+        }
+
+        private void ConfigureDoctorEntity(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Doctor>(entity =>
+            {
+                entity.HasKey(d => d.DoctorId);
+
+                entity.Property(d => d.Name).IsRequired().HasMaxLength(100).IsUnicode();
+
+                entity.Property(d => d.Specialty).IsRequired().HasMaxLength(100).IsUnicode();
+
+                entity.HasMany(d => d.Visitations).WithOne(v => v.Doctor);
+
+
+            });
         }
 
         private void ConfigurePatientMedicamentEntity(ModelBuilder modelBuilder)
@@ -129,6 +147,7 @@
             });
 
         }
+
     }
 
 

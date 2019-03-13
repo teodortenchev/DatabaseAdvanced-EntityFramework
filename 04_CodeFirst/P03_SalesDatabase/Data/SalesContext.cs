@@ -20,7 +20,10 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            ConfigureCustomerEntity(modelBuilder);
+            ConfigureProductEntity(modelBuilder);
+            ConfigureSaleEntity(modelBuilder);
+            ConfigureStoreEntity(modelBuilder);
         }
 
         private void ConfigureProductEntity(ModelBuilder modelBuilder)

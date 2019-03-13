@@ -35,6 +35,8 @@
                 product.HasMany(p => p.Sales).WithOne(s => s.Product);
 
                 product.Property(p => p.Name).IsRequired().HasMaxLength(50).IsUnicode();
+
+                product.Property(p => p.Description).HasMaxLength(250).HasDefaultValue("No desription");
             });
         }
 
@@ -48,7 +50,7 @@
 
                 customer.Property(c => c.Name).IsRequired().HasMaxLength(100).IsUnicode();
 
-                customer.Property(c => c.Email).IsRequired().HasMaxLength(80);
+                customer.Property(c => c.Email).IsRequired().HasMaxLength(80).IsUnicode(false);
             });
         }
 

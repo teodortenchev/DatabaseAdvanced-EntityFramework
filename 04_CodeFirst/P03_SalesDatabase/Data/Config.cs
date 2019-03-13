@@ -1,4 +1,4 @@
-﻿namespace P01_HospitalDatabase.Data
+﻿namespace P03_SalesDatabase.Data
 {
     public class Config
     {

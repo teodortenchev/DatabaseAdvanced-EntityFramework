@@ -8,8 +8,9 @@
         {
             this.Visitations = new HashSet<Visitation>();
             this.Diagnoses = new HashSet<Diagnose>();
+            this.Prescriptions = new HashSet<PatientMedicament>();
         }
-        public int PatientID { get; set; }
+        public int PatientId { get; set; }
 
         public string FirstName { get; set; }
 
@@ -19,7 +20,7 @@
 
         public string Email { get; set; }
 
-        public bool hasInsurance { get; set; }
+        public bool HasInsurance { get; set; }
 
         public ICollection<Visitation> Visitations { get; set; }
 

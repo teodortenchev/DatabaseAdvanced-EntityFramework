@@ -2,6 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using P03_SalesDatabase.Data.Models;
+    using System;
 
     public class SalesContext : DbContext
     {

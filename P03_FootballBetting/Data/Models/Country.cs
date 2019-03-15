@@ -1,6 +1,7 @@
 ﻿namespace P03_FootballBetting.Data.Models
 {
     using System.Collections.Generic;
+
     public class Country
     {
         public int CountryId { get; set; }

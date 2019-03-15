@@ -60,6 +60,8 @@
             modelBuilder.Entity<Sale>(sale =>
             {
                 sale.HasKey(s => s.SaleId);
+
+                sale.Property(s => s.Date).HasDefaultValueSql("GETDATE()");
             });
         }
 

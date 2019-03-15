@@ -1,6 +1,5 @@
 ﻿namespace P03_FootballBetting.Data.Models
 {
-    using Enums;
     using System.Collections.Generic;
     public class Team
     {
@@ -10,7 +9,7 @@
 
         public string LogoUrl { get; set; }
 
-        public Initials Initials { get; set; }
+        public string Initials { get; set; }
 
         public decimal Budget { get; set; }
 

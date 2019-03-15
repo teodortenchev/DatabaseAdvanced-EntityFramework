@@ -20,5 +20,7 @@
 
         public ICollection<Game> Games { get; set; }
 
+        public ICollection<PlayerStatistic> PlayerStatistics { get; set; }
+
     }
 }

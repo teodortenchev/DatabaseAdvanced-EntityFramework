@@ -6,7 +6,7 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Looks like everything went well.");
         }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using P01_StudentSystem.Data;
 
 namespace P01_StudentSystem.Migrations
 {
     [DbContext(typeof(StudentSystemContext))]
-    partial class StudentSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20190315160224_DataSeed")]
+    partial class DataSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,7 +98,7 @@ namespace P01_StudentSystem.Migrations
                             ContentType = 1,
                             CourseId = 1,
                             StudentId = 2,
-                            SubmissionTime = new DateTime(2019, 3, 15, 20, 5, 40, 793, DateTimeKind.Local).AddTicks(7134)
+                            SubmissionTime = new DateTime(2019, 3, 15, 20, 2, 21, 276, DateTimeKind.Local).AddTicks(3688)
                         });
                 });
 
@@ -166,13 +168,13 @@ namespace P01_StudentSystem.Migrations
                         {
                             StudentId = 1,
                             Name = "Teodor Tenchev",
-                            RegisteredOn = new DateTime(2019, 3, 15, 20, 5, 40, 783, DateTimeKind.Local).AddTicks(8410)
+                            RegisteredOn = new DateTime(2019, 3, 15, 20, 2, 21, 267, DateTimeKind.Local).AddTicks(4424)
                         },
                         new
                         {
                             StudentId = 2,
                             Name = "Galina Gouleva-Tenchev",
-                            RegisteredOn = new DateTime(2019, 3, 15, 20, 5, 40, 784, DateTimeKind.Local).AddTicks(2827)
+                            RegisteredOn = new DateTime(2019, 3, 15, 20, 2, 21, 268, DateTimeKind.Local).AddTicks(4222)
                         });
                 });
 

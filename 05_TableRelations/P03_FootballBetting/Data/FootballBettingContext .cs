@@ -11,7 +11,6 @@
         //{
 
         //}
-
         public DbSet<Bet> Bets { get; set; }
         public DbSet<Color> Colors { get; set; }
         public DbSet<Country> Countries { get; set; }
@@ -115,8 +114,6 @@
                 entity.Property(p => p.IsInjured).HasDefaultValue(false);
 
                 entity.Property(p => p.Name).IsRequired().HasMaxLength(100);
-
-                entity.HasMany(p => p.PlayerStatistics).WithOne(ps => ps.Player);
             });
         }
 
@@ -125,6 +122,8 @@
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(c => c.ColorId);
+                entity.HasMany(c => c.PrimaryKitTeams).WithOne(t => t.PrimaryKitColor).OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(c => c.SecondaryKitTeams).WithOne(t => t.SecondaryKitColor).OnDelete(DeleteBehavior.Restrict);
             });
         }
 
@@ -157,16 +156,6 @@
                 entity.HasMany(t => t.HomeGames).WithOne(hg => hg.HomeTeam).OnDelete(DeleteBehavior.Restrict);
                 entity.HasMany(t => t.AwayGames).WithOne(ag => ag.AwayTeam).OnDelete(DeleteBehavior.Restrict);
                 entity.HasMany(t => t.Players).WithOne(p => p.Team);
-
-                entity.HasOne(t => t.PrimaryKitColor)
-                    .WithMany(pc => pc.PrimaryKitTeams)
-                    .HasForeignKey(t => t.PrimaryKitColorId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(t => t.SecondaryKitColor)
-                    .WithMany(stc => stc.SecondaryKitTeams)
-                    .HasForeignKey(t => t.SecondaryKitColorId)
-                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

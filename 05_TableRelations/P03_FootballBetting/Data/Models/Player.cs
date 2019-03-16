@@ -18,8 +18,6 @@
 
         public bool IsInjured { get; set; }
 
-        public ICollection<Game> Games { get; set; }
-
         public ICollection<PlayerStatistic> PlayerStatistics { get; set; }
 
     }

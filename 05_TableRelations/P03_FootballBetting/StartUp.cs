@@ -13,7 +13,7 @@
                 Console.WriteLine("Db created successfully.");
 
 
-                Console.WriteLine("Press any key to continue. DB will be deleted.");
+                Console.WriteLine("Press any key to continue. DB will be deleted." + Environment.NewLine);
                 Console.ReadKey();
 
                 context.Database.EnsureDeleted();

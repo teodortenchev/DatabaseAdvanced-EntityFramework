@@ -1,8 +1,8 @@
 ﻿namespace BillsPaymentSystem.Models
 {
+    using BillsPaymentSystem.Models.Attributes;
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
 
     public class CreditCard
     {
@@ -10,9 +10,11 @@
 
         [Range(typeof(decimal), "0.00", "5000000")]
         public decimal Limit { get; set; }
+
         [Range(typeof(decimal), "0.00", "50000000")]
         public decimal MoneyOwed { get; set; }
 
+        [ExpirationCheck]
         public DateTime ExpirationDate { get; set; }
 
         public PaymentMethod PaymentMethod { get; set; }

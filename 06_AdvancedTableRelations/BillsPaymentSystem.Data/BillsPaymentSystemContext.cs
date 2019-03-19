@@ -18,18 +18,19 @@
             {
                 optionsBuilder.UseSqlServer(Config.ConnectionString);
             }
-            base.OnConfiguring(optionsBuilder);
+        
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new UserConfig());
+
             modelBuilder.ApplyConfiguration(new CreditCardConfig());
 
             modelBuilder.ApplyConfiguration(new BankAccountConfig());
 
-            modelBuilder.ApplyConfiguration(new UserConfig());
-
             modelBuilder.ApplyConfiguration(new PaymentMethodConfig());
+
 
 
 

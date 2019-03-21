@@ -1,28 +1,17 @@
-﻿namespace BillsPaymentSystem.App
-{
-    using BillsPaymentSystem.Data;
-    using System;
-    using Microsoft.EntityFrameworkCore.Design;
+﻿using BillsPaymentSystem.Data;
+using System.Linq;
 
+namespace BillsPaymentSystem.App
+{
     public class StartUp
     {
         static void Main(string[] args)
         {
             using (var context = new BillsPaymentSystemContext())
             {
-                DbInitializer.Seed(context);
+                var creditCards = context.CreditCards.ToList();
 
-                //context.Database.EnsureCreated();
-                //Console.WriteLine("Db created successfully.");
-
-
-                //Console.WriteLine("Press any key to continue. DB will be deleted." + Environment.NewLine);
-                //Console.ReadKey();
-
-                //Console.WriteLine();
-
-                //context.Database.EnsureDeleted();
-                //Console.WriteLine("Database Successfully Deleted.");
+                DBInitializer.Seed(context);
             }
         }
     }

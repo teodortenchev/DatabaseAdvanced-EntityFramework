@@ -1,8 +1,8 @@
-﻿namespace BillsPaymentSystem.Models.Attributes
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
+namespace BillsPaymentSystem.Models.Attributes
+{
     [AttributeUsage(AttributeTargets.Property)]
     public class ExpirationCheckAttribute : ValidationAttribute
     {

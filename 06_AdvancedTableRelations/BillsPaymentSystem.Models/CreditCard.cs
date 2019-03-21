@@ -1,9 +1,9 @@
-﻿namespace BillsPaymentSystem.Models
-{
-    using BillsPaymentSystem.Models.Attributes;
-    using System;
-    using System.ComponentModel.DataAnnotations;
+﻿using BillsPaymentSystem.Models.Attributes;
+using System;
+using System.ComponentModel.DataAnnotations;
 
+namespace BillsPaymentSystem.Models
+{
     public class CreditCard
     {
         public int CreditCardId { get; set; }

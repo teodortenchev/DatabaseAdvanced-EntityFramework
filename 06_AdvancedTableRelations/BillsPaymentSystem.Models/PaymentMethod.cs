@@ -1,8 +1,8 @@
-﻿namespace BillsPaymentSystem.Models
-{
-    using BillsPaymentSystem.Models.Attributes;
-    using Enums;
+﻿using BillsPaymentSystem.Models.Attributes;
+using BillsPaymentSystem.Models.Enums;
 
+namespace BillsPaymentSystem.Models
+{
     public class PaymentMethod
     {
         public int Id { get; set; }

@@ -1,101 +1,34 @@
-﻿namespace BillsPaymentSystem.App
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using BillsPaymentSystem.Data;
-    using BillsPaymentSystem.Models;
-    using BillsPaymentSystem.Models.Enums;
+﻿using BillsPaymentSystem.Data;
+using BillsPaymentSystem.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-    public class DbInitializer
+namespace BillsPaymentSystem.App
+{
+    public class DBInitializer
     {
         public static void Seed(BillsPaymentSystemContext context)
         {
-            
-
-            SeedUsers(context);
+            //SeedUsers(context);
             SeedCreditCards(context);
-            SeedBankAccounts(context);
-            SeedPaymentMethods(context);
-
-
-        }
-
-        private static void SeedPaymentMethods(BillsPaymentSystemContext context)
-        {
-            var paymentMethods = new List<PaymentMethod>();
-
-            for (int i = 0; i < 8; i++)
-            {
-                var paymentMethod = new PaymentMethod
-                {
-                    UserId = new Random().Next(1, 5),
-                    Type = (PaymentType)new Random().Next(0, 2),
-                };
-
-                if (i % 3 == 0)
-                {
-                    paymentMethod.CreditCardId = 1;
-                    paymentMethod.BankAccountId = 1;
-                }
-                else if (i % 2 == 0)
-                {
-                    paymentMethod.CreditCardId = new Random().Next(1, 5);
-                }
-                else
-                {
-                    paymentMethod.BankAccountId = new Random().Next(1, 5);
-                }
-
-                if(!IsValid(paymentMethod))
-                {
-                    continue;
-                }
-
-                paymentMethods.Add(paymentMethod);
-            }
-
-            context.PaymentMethods.AddRange(paymentMethods);
-            context.SaveChanges();
-        }
-
-        private static void SeedBankAccounts(BillsPaymentSystemContext context)
-        {
-            var bankAccounts = new List<BankAccount>();
-
-            for (int i = 0; i < 8; i++)
-            {
-                var bankAccount = new BankAccount
-                {
-                    Balance = new Random().Next(-200, 200),
-                    BankName = "Banka" + i,
-                    SWIFT = "Swift" + i + 1
-                };
-
-                if (IsValid(bankAccount))
-                {
-                    continue;
-                }
-
-                bankAccounts.Add(bankAccount);
-            }
-
-            context.BankAccounts.AddRange(bankAccounts);
-            context.SaveChanges();
-
         }
 
         private static void SeedCreditCards(BillsPaymentSystemContext context)
         {
+            decimal[] limits = { 5000000, 5000001, -1, 500, 250, 0 };
+            decimal[] moneyowed = { 1, 2, 3, 4, 5, 6 };
+            DateTime[] expirationDates = { DateTime.Now.AddDays(50), DateTime.Now.AddDays(500), DateTime.Now.AddDays(-500), DateTime.Now.AddDays(5), DateTime.Now.AddDays(43), DateTime.Now.AddDays(36436) };
+
             var creditCards = new List<CreditCard>();
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < limits.Length; i++)
             {
                 var creditCard = new CreditCard
                 {
-                    Limit = new Random().Next(-1, 25000),
-                    MoneyOwed = new Random().Next(-1, 25000),
-                    ExpirationDate = DateTime.Now.AddDays(new Random().Next(-200, 200))
+                    Limit = limits[i],
+                    MoneyOwed = moneyowed[i],
+                    ExpirationDate = expirationDates[i]
                 };
 
                 if (!IsValid(creditCard))
@@ -104,18 +37,20 @@
                 }
 
                 creditCards.Add(creditCard);
+
             }
 
-            context.CreditCards.AddRange(creditCards);
+            context.AddRange(creditCards);
             context.SaveChanges();
+
         }
 
         private static void SeedUsers(BillsPaymentSystemContext context)
         {
-            string[] firstNames = { "Goshko", "Mancho", "AzakakakasaokasoaskasaoskasoaksaoskaOKASFHJDFSDJFJSDFOKASKASOKFOKFSDOFSDOFKSDFOKSDFSDFOKSDFOKSDFOKFSDF", "a", "ERROR" };
-            string[] lastNames = { "Goshkov", "Petrov", "a", null, "ERROR" };
-            string[] emails = { "genadi@abv.bg", "petio@gmail.com", "gi.com", null, "ERROR" };
-            string[] passwords = { "password", "parolatammi123", "11", null, "ERROR" };
+            string[] firstNames = { "Goshko", "Mancho", "Grozdan", "a", "ERROR" };
+            string[] lastNames = { "Goshkov", "Petrov", "Pesho", null, "ERROR" };
+            string[] emails = { "genadi@abv.bg", "petio@gmail.com", "giri@ggaz.com", "p.com", "ERROR" };
+            string[] passwords = { "password", "parolatammi123", "1112s1", null, "ERROR" };
 
             List<User> users = new List<User>();
 
@@ -139,8 +74,6 @@
 
             context.AddRange(users);
             context.SaveChanges();
-
-
         }
 
         private static bool IsValid(object entity)

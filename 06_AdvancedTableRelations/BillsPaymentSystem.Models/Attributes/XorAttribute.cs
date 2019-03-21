@@ -1,8 +1,10 @@
-﻿namespace BillsPaymentSystem.Models.Attributes
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
+namespace BillsPaymentSystem.Models.Attributes
+{
     [AttributeUsage(AttributeTargets.Property)]
     public class XorAttribute : ValidationAttribute
     {

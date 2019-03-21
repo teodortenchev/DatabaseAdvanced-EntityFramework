@@ -1,8 +1,10 @@
-﻿namespace BillsPaymentSystem.Models
-{
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
+namespace BillsPaymentSystem.Models
+{
     public class User
     {
         public int UserId { get; set; }

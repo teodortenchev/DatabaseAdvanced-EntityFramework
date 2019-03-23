@@ -1,4 +1,6 @@
-﻿using BillsPaymentSystem.Data;
+﻿using BillsPaymentSystem.App.Contracts;
+using BillsPaymentSystem.App.Core;
+using BillsPaymentSystem.Data;
 using System.Linq;
 
 namespace BillsPaymentSystem.App
@@ -9,9 +11,11 @@ namespace BillsPaymentSystem.App
         {
             using (var context = new BillsPaymentSystemContext())
             {
-                var creditCards = context.CreditCards.ToList();
+                ICommandInterpreter commandInterpreter = new CommandInterpreter(context);
 
-                DBInitializer.Seed(context);
+                IEngine engine = new Engine(commandInterpreter);
+
+                engine.Run();
             }
         }
     }

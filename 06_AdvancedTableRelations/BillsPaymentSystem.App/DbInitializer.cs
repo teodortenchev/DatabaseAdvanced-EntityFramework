@@ -1,5 +1,6 @@
 ﻿using BillsPaymentSystem.Data;
 using BillsPaymentSystem.Models;
+using BillsPaymentSystem.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,65 @@ namespace BillsPaymentSystem.App
         public static void Seed(BillsPaymentSystemContext context)
         {
             //SeedUsers(context);
-            SeedCreditCards(context);
+            // SeedCreditCards(context);
+            SeedBankAccounts(context);
+            SeedPaymentMethods(context);
+        }
+
+        private static void SeedPaymentMethods(BillsPaymentSystemContext context)
+        {
+            int[] userIds = { 1, 2, 3, 4 };
+            int?[] bankAccountIds = { 1, 2, null, 1 };
+            int?[] creditCardIds = { 1, null, 2, 3 };
+            PaymentType[] types = { PaymentType.BankAccount, PaymentType.BankAccount, PaymentType.CreditCard, PaymentType.CreditCard };
+
+            var paymentMethods = new List<PaymentMethod>();
+
+            for (int i = 0; i < userIds.Length; i++)
+            {
+                var paymentMethod = new PaymentMethod
+                {
+                    UserId = userIds[i],
+                    Type = types[i],
+                    BankAccountId = bankAccountIds[i],
+                    CreditCardId = creditCardIds[i]
+               };
+
+                if (!IsValid(paymentMethod))
+                {
+                    continue;
+                }
+
+                paymentMethods.Add(paymentMethod);
+
+            }
+
+            context.PaymentMethods.AddRange(paymentMethods);
+            context.SaveChanges();
+
+        }
+
+        private static void SeedBankAccounts(BillsPaymentSystemContext context)
+        {
+            string[] bankNames = { "Hebros Bank", "Puntamara Bank", "HSBC", "Lloyds" };
+            string[] swiftCodes = { "ABCD", "AAZZ", "NONN", "BRCKU" };
+
+            var bankAccounts = new List<BankAccount>();
+
+            for (int i = 0; i < bankNames.Length; i++)
+            {
+                var bankAccount = new BankAccount
+                {
+                    Balance = new Random().Next(1, 25000),
+                    BankName = bankNames[i],
+                    SWIFT = swiftCodes[i]
+                };
+
+                bankAccounts.Add(bankAccount);
+            }
+
+            context.BankAccounts.AddRange(bankAccounts);
+
         }
 
         private static void SeedCreditCards(BillsPaymentSystemContext context)
@@ -40,7 +99,7 @@ namespace BillsPaymentSystem.App
 
             }
 
-            context.AddRange(creditCards);
+            context.CreditCards.AddRange(creditCards);
             context.SaveChanges();
 
         }
@@ -72,7 +131,7 @@ namespace BillsPaymentSystem.App
                 users.Add(user);
             }
 
-            context.AddRange(users);
+            context.Users.AddRange(users);
             context.SaveChanges();
         }
 

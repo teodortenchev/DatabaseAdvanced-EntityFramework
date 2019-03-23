@@ -1,6 +1,4 @@
-﻿using BillsPaymentSystem.Models.Enums;
-
-namespace BillsPaymentSystem.Models
+﻿namespace BillsPaymentSystem.Models
 {
     public class BankAccount
     {

@@ -1,5 +1,4 @@
-﻿using MyApp.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace MyApp.Core.ViewModels
 {

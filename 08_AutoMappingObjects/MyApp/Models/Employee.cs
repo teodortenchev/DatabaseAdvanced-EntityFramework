@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace MyApp.Models
 {
     public class Employee
     {
+        public Employee()
+        {
+            ManagedEmployees = new List<Employee>();
+        }
+
         public int Id { get; set; }
 
         [Required]
@@ -27,6 +31,6 @@ namespace MyApp.Models
 
         public Employee Manager { get; set; }
 
-        public ICollection<Employee> ManagedEmployees { get; set; }
+        public List<Employee> ManagedEmployees { get; set; }
     }
 }

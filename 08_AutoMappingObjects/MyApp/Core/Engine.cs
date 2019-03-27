@@ -24,11 +24,16 @@ namespace MyApp.Core
             {
                 string[] data = input.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
-                string result = commandInterpreter.Interpret(data);
+                try
+                {
+                    string result = commandInterpreter.Interpret(data);
+                    Console.WriteLine(result);
 
-                Console.WriteLine(result);
-                
-                //TODO Try catch
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
 
                 input = Console.ReadLine();
             }

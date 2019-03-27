@@ -5,13 +5,16 @@ namespace MyApp.Data
 {
     public class CompanyContext : DbContext
     {
-        public CompanyContext(DbContextOptions options) : base(options)
+
+        public CompanyContext()
         {
 
         }
 
+        public CompanyContext(DbContextOptions options) : base(options)
+        {
 
-        public DbSet<Employee> Employees { get; set; }
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -21,9 +24,8 @@ namespace MyApp.Data
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
+        public DbSet<Employee> Employees { get; set; }
+
+
     }
 }

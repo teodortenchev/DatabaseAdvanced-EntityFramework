@@ -23,5 +23,10 @@ namespace MyApp.Models
 
         public string Address { get; set; }
 
+        public int? ManagerId { get; set; }
+
+        public Employee Manager { get; set; }
+
+        public ICollection<Employee> ManagedEmployees { get; set; }
     }
 }

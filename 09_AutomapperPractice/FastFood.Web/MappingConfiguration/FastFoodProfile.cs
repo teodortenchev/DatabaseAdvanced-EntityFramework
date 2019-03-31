@@ -35,9 +35,9 @@
 
             this.CreateMap<Category, CategoryAllViewModel>();
 
-            //Items'x => x.Order.Customer
+            //Items
             this.CreateMap<Category, CreateItemViewModel>()
-                .ForMember(x => x.CategoryId, y => y.MapFrom(c => c.Id));
+                .ForMember(x => x.CategoryName, y => y.MapFrom(c => c.Name));
 
             this.CreateMap<CreateItemInputModel, Item>();
 
@@ -46,7 +46,9 @@
 
             //Orders
             this.CreateMap<CreateOrderInputModel, Order>()
-                .ForMember(x => x.Type, y => y.MapFrom(o => o.Type));
+                .ForMember(x => x.Type, y => y.MapFrom(o => o.Type))
+                .ForPath(x => x.Employee.Name, y => y.MapFrom(i => i.Employee));
+               
 
 
 
@@ -55,7 +57,7 @@
                 .ForMember(x => x.DateTime, y => y.MapFrom(o => o.DateTime.ToString("g")))
                 .ForMember(x => x.Employee, y => y.MapFrom(o => o.Employee.Name));
 
-
+           
 
 
 

@@ -10,9 +10,9 @@ namespace FastFood.Web.ViewModels.Orders
         [Required]
         public string Customer { get; set; }
 
-        public int ItemId { get; set; }
+        public string Item { get; set; }
 
-        public int EmployeeId { get; set; }
+        public string Employee { get; set; }
 
         
         [Range(1,1000)]

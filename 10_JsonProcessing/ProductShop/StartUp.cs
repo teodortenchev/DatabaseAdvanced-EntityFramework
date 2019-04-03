@@ -62,32 +62,36 @@ namespace ProductShop
             var filteredUsers = context.Users
                 .Where(u => u.ProductsSold.Any(ps => ps.Buyer != null))
                 .OrderByDescending(u => u.ProductsSold.Count(ps => ps.Buyer != null))
-                
+
                 .Select(x => new
                 {
-                    UsersCount = x.ProductsSold.Count(ps => ps.Buyer != null),
-                    Users = new
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Age = x.Age,
+                    SoldProducts = new
                     {
-                        LastName = x.LastName,
-                        Age = x.Age,
-                        SoldProducts = new
-                        {
-                            Count = x.ProductsSold.Count(ps => ps.Buyer != null),
-                            Products = x.ProductsSold
-                                .Where(ps => ps.Buyer != null)
-                                .Select(p => new
-                                {
-                                    Name = p.Name,
-                                    Price = p.Price
-                                }).ToList()
-                        }
+                        Count = x.ProductsSold.Count(ps => ps.Buyer != null),
+                        Products = x.ProductsSold
+                            .Where(ps => ps.Buyer != null)
+                            .Select(p => new
+                            {
+                                Name = p.Name,
+                                Price = p.Price
+                            })
+                            .ToList()
                     }
                 })
                 .ToList();
-            
+
+            var resultUsers = new
+            {
+                UsersCount = filteredUsers.Count,
+                Users = filteredUsers
+            };
+
             DefaultContractResolver contractResolver = new DefaultContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() };
 
-            var jsonResult = JsonConvert.SerializeObject(filteredUsers, new JsonSerializerSettings()
+            var jsonResult = JsonConvert.SerializeObject(resultUsers, new JsonSerializerSettings()
             {
                 ContractResolver = contractResolver,
                 Formatting = Formatting.Indented,
@@ -156,7 +160,7 @@ namespace ProductShop
                 .Include(x => x.ProductsSold)
                 .ToList();
 
-            
+
             var jsonExport = Mapper.Map<IEnumerable<User>, IEnumerable<UserWithSalesDto>>(usersWithSales);
 
             DefaultContractResolver contractResolver = new DefaultContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() };

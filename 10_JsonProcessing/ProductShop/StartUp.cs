@@ -91,6 +91,7 @@ namespace ProductShop
             {
                 ContractResolver = contractResolver,
                 Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
 
             });
 

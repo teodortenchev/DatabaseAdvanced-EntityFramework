@@ -9,6 +9,7 @@ using CarDealer.Imports;
 using CarDealer.Models;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 
 namespace CarDealer
 {
@@ -25,7 +26,7 @@ namespace CarDealer
                 //context.Database.EnsureCreated();
                 //DBInitializeFromJson(context);
 
-                string result = GetCarsWithTheirListOfParts(context);
+                string result = GetTotalSalesByCustomer(context);
 
                 Console.WriteLine(result);
             }
@@ -105,6 +106,7 @@ namespace CarDealer
                 .Include(x => x.Sales)
                 .ThenInclude(s => s.Car)
                 .ThenInclude(s => s.PartCars)
+                .ThenInclude(s => s.Part)
                 .ToList()
                 .Select(x => new
                 {
@@ -112,6 +114,21 @@ namespace CarDealer
                     BoughtCars = x.Sales.Count,
                     SpentMoney = $"{x.Sales.Sum(s => s.Car.PartCars.Sum(b => b.Part.Price)):F2}"
                 });
+
+
+
+            DefaultContractResolver contractResolver = new DefaultContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() };
+
+            var jsonOutput = JsonConvert.SerializeObject(customersWithPurchases, new JsonSerializerSettings()
+            {
+                ContractResolver = contractResolver,
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+
+            });
+
+            return jsonOutput;
+
         }
 
         public static void DBInitializeFromJson(CarDealerContext context)

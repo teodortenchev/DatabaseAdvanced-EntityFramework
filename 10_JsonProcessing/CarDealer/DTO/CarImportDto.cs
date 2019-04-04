@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿ using System.Collections.Generic;
 
 namespace CarDealer.DTO
 {
-    public class CarDto
+    public class CarImportDto
     {
         public string Make { get; set; }
 

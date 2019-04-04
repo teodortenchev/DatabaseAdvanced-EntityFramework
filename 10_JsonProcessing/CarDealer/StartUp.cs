@@ -8,6 +8,7 @@ using CarDealer.DTO;
 using CarDealer.Imports;
 using CarDealer.Models;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarDealer
 {
@@ -20,23 +21,108 @@ namespace CarDealer
 
             using (CarDealerContext context = new CarDealerContext())
             {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-                DBInitializeFromJson(context);
+                //context.Database.EnsureDeleted();
+                //context.Database.EnsureCreated();
+                //DBInitializeFromJson(context);
+
+                string result = GetCarsWithTheirListOfParts(context);
+
+                Console.WriteLine(result);
             }
         }
 
+        public static string GetOrderedCustomers(CarDealerContext context)
+        {
+            List<Customer> orderedCustomers = context.Customers.OrderBy(x => x.BirthDate).ThenBy(x => x.IsYoungDriver).ToList();
 
+            var customerDtos = Mapper.Map<IEnumerable<Customer>, IEnumerable<CustomerDto>>(orderedCustomers);
+
+            string jsonOutput = JsonConvert.SerializeObject(customerDtos, Formatting.Indented);
+
+            return jsonOutput;
+        }
+
+        public static string GetCarsFromMakeToyota(CarDealerContext context)
+        {
+            List<Car> toyotaCars = context.Cars
+                .Where(x => x.Make == "Toyota")
+                .OrderBy(x => x.Model)
+                .ThenByDescending(x => x.TravelledDistance)
+                .ToList();
+
+            List<CarExportDto> exportedCars = Mapper.Map<List<Car>, List<CarExportDto>>(toyotaCars);
+
+            string jsonOutput = JsonConvert.SerializeObject(exportedCars, Formatting.Indented);
+
+            return jsonOutput;
+        }
+
+        public static string GetLocalSuppliers(CarDealerContext context)
+        {
+            var domesticSuppliers = context.Suppliers
+                .Where(x => !x.IsImporter)
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    PartsCount = x.Parts.Count
+                }).ToList();
+
+
+            string jsonOutput = JsonConvert.SerializeObject(domesticSuppliers, Formatting.Indented);
+
+            return jsonOutput;
+        }
+
+        public static string GetCarsWithTheirListOfParts(CarDealerContext context)
+        {
+            var carsWithParts = context.Cars.Include(x => x.PartCars).ThenInclude(p => p.Part).ToList()
+                .Select(x => new
+                {
+                    car = new
+                    {
+                        x.Make,
+                        x.Model,
+                        x.TravelledDistance
+                    },
+                    parts = x.PartCars.Select(pc => new
+                    {
+                        pc.Part.Name,
+                        Price = $"{pc.Part.Price:F2}"
+                    })
+                })
+                .ToList();
+
+            string jsonOutput = JsonConvert.SerializeObject(carsWithParts, Formatting.Indented);
+
+            return jsonOutput;
+        }
+
+        public static string GetTotalSalesByCustomer(CarDealerContext context)
+        {
+            var customersWithPurchases = context.Customers
+                .Where(x => x.Sales.Count > 0)
+                .Include(x => x.Sales)
+                .ThenInclude(s => s.Car)
+                .ThenInclude(s => s.PartCars)
+                .ToList()
+                .Select(x => new
+                {
+                    FullName = x.Name,
+                    BoughtCars = x.Sales.Count,
+                    SpentMoney = $"{x.Sales.Sum(s => s.Car.PartCars.Sum(b => b.Part.Price)):F2}"
+                });
+        }
 
         public static void DBInitializeFromJson(CarDealerContext context)
         {
             ImportSuppliers(context, File.ReadAllText(ImportFilesHelper.SuppliersJsonPath));
             ImportParts(context, File.ReadAllText(ImportFilesHelper.PartsJsonPath));
-            string result = ImportCars(context, File.ReadAllText(ImportFilesHelper.CarsJsonPath));
-            ImportCustomers(context, File.ReadAllText(ImportFilesHelper.CarsJsonPath));
+            ImportCars(context, File.ReadAllText(ImportFilesHelper.CarsJsonPath));
+            ImportCustomers(context, File.ReadAllText(ImportFilesHelper.CustomersJsonPath));
             ImportSales(context, File.ReadAllText(ImportFilesHelper.SalesJsonPath));
 
-            Console.WriteLine(result);
+            Console.WriteLine("DB initialized successfully with sample data from Datasets folder.");
         }
 
         public static string ImportSuppliers(CarDealerContext context, string inputJson)
@@ -79,9 +165,9 @@ namespace CarDealer
 
         public static string ImportCars(CarDealerContext context, string inputJson)
         {
-            var carsImport = JsonConvert.DeserializeObject<CarDto[]>(inputJson);
+            var carsImport = JsonConvert.DeserializeObject<CarImportDto[]>(inputJson);
 
-            var readyCars = Mapper.Map<CarDto[], Car[]>(carsImport);
+            var readyCars = Mapper.Map<CarImportDto[], Car[]>(carsImport);
             context.AddRange(readyCars);
 
             context.SaveChanges();
@@ -153,26 +239,9 @@ namespace CarDealer
         {
             List<Sale> salesImport = JsonConvert.DeserializeObject<List<Sale>>(inputJson);
 
-            HashSet<int> customerIds = context.Customers.Select(x => x.Id).ToHashSet();
-            HashSet<int> carIds = context.Cars.Select(x => x.Id).ToHashSet();
+            
 
-            List<Sale> verifiedSales = new List<Sale>();
-
-            foreach (var sale in salesImport)
-            {
-                int customerId = sale.CustomerId;
-                int carId = sale.CarId;
-
-                if (!customerIds.Contains(customerId) && !carIds.Contains(carId))
-                {
-                    Console.WriteLine("Invalid Id found.");
-                    continue;
-                }
-
-                verifiedSales.Add(sale);
-            }
-
-            context.Sales.AddRange(verifiedSales);
+            context.Sales.AddRange(salesImport);
 
             int rowsCount = context.SaveChanges();
 

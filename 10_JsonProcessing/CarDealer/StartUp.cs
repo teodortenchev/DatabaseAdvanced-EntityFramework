@@ -101,30 +101,37 @@ namespace CarDealer
 
         public static string GetTotalSalesByCustomer(CarDealerContext context)
         {
+
+
+
             var customersWithPurchases = context.Customers
-                .Where(x => x.Sales.Count > 0)
                 .Include(x => x.Sales)
                 .ThenInclude(s => s.Car)
-                .ThenInclude(s => s.PartCars)
-                .ThenInclude(s => s.Part)
+                .ThenInclude(c => c.PartCars)
+                .ThenInclude(pc => pc.Part)
                 .ToList()
+                .Where(c => c.Sales.Count >= 1)
                 .Select(x => new
                 {
                     FullName = x.Name,
                     BoughtCars = x.Sales.Count,
-                    SpentMoney = $"{x.Sales.Sum(s => s.Car.PartCars.Sum(b => b.Part.Price)):F2}"
-                });
+                    SpentMoney = x.Sales.Sum(s => s.Car.PartCars.Sum(b => b.Part.Price))
+                })
+                .ToList()
+                .OrderByDescending(x => x.SpentMoney)
+                .ThenBy(x => x.BoughtCars)
+                .ToList();
 
 
-
-            DefaultContractResolver contractResolver = new DefaultContractResolver() { NamingStrategy = new CamelCaseNamingStrategy() };
 
             var jsonOutput = JsonConvert.SerializeObject(customersWithPurchases, new JsonSerializerSettings()
             {
-                ContractResolver = contractResolver,
+                NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore
-
+                ContractResolver = new DefaultContractResolver()
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                }
             });
 
             return jsonOutput;
@@ -256,7 +263,7 @@ namespace CarDealer
         {
             List<Sale> salesImport = JsonConvert.DeserializeObject<List<Sale>>(inputJson);
 
-            
+
 
             context.Sales.AddRange(salesImport);
 

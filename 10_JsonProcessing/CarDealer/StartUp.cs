@@ -26,7 +26,7 @@ namespace CarDealer
                 //context.Database.EnsureCreated();
                 //DBInitializeFromJson(context);
 
-                string result = GetTotalSalesByCustomer(context);
+                string result = GetSalesWithAppliedDiscount(context);
 
                 Console.WriteLine(result);
             }
@@ -101,9 +101,6 @@ namespace CarDealer
 
         public static string GetTotalSalesByCustomer(CarDealerContext context)
         {
-
-
-
             var customersWithPurchases = context.Customers
                 .Include(x => x.Sales)
                 .ThenInclude(s => s.Car)
@@ -124,18 +121,44 @@ namespace CarDealer
 
 
 
-            var jsonOutput = JsonConvert.SerializeObject(customersWithPurchases, new JsonSerializerSettings()
+            var jsonOutput = JsonConvert.SerializeObject(customersWithPurchases, Formatting.Indented, new JsonSerializerSettings
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
 
             return jsonOutput;
 
+        }
+
+        public static string GetSalesWithAppliedDiscount(CarDealerContext context)
+        {
+            var filteredSales = context.Sales
+                .OrderBy(x => x.Id)
+                .Take(10)
+                .Include(x => x.Car)
+                .ThenInclude(x => x.PartCars)
+                .ThenInclude(x => x.Part)
+                .Include(y => y.Customer)
+                .ToList();
+
+            var salesWithDiscount = filteredSales.Select(x => new
+            {
+                car = new
+                {
+                    x.Car.Make,
+                    x.Car.Model,
+                    x.Car.TravelledDistance
+                },
+                customerName = x.Customer.Name,
+                Discount = $"{x.Discount:F2}",
+                price = $"{x.Car.PartCars.Sum(pc => pc.Part.Price):F2}",
+                priceWithDiscount = $"{(x.Car.PartCars.Sum(pc => pc.Part.Price) - (x.Discount / 100) * (x.Car.PartCars.Sum(pc => pc.Part.Price))):F2}"
+
+            }).ToList();
+
+            var jsonOutput = JsonConvert.SerializeObject(salesWithDiscount, Formatting.Indented);
+
+            return jsonOutput;
         }
 
         public static void DBInitializeFromJson(CarDealerContext context)

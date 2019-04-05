@@ -31,7 +31,7 @@ namespace CarDealer.Data
                 optionsBuilder.UseSqlServer(@"Server=DESKTOP-5BS58RU\SQLEXPRESS;Database=CarDealer;Trusted_Connection=True;");
             }
 
-            optionsBuilder.EnableSensitiveDataLogging();
+           // optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

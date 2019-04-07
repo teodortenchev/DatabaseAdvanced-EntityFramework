@@ -27,7 +27,7 @@ namespace ProductShop
                 //context.Database.EnsureCreated();
                 //DBInitializeFromXml(context);
 
-                Console.WriteLine(GetCategoriesByProductsCount(context));
+                Console.WriteLine(GetUsersWithProducts(context));
             }
         }
 
@@ -92,6 +92,51 @@ namespace ProductShop
 
             return sb.ToString().TrimEnd();
         }
+
+        public static string GetUsersWithProducts(ProductShopContext context)
+        {
+            var users = context.Users
+                .Where(u => u.ProductsSold.Count > 0)
+                .OrderByDescending(u => u.ProductsSold.Count)
+                .Select(x => new ExportUserWithProductDto
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Age = x.Age,
+                    SoldProducts = new ExportProductCountDto
+                    {
+                        Count = x.ProductsSold.Count,
+                        Products = x.ProductsSold.Select(p => new ExportProductSimpleDto
+                        {
+                            Name = p.Name,
+                            Price = p.Price
+                        }).OrderByDescending(p => p.Price)
+                        .ToList()
+                    }
+                })
+                .Take(10)
+                .ToList();
+
+            var customExport = new ExportUsersDto
+            {
+                Count = context.Users.Where(u => u.ProductsSold.Count > 0).Count(),
+                Users = users
+            };
+
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(ExportUsersDto), new XmlRootAttribute("Users"));
+
+            var sb = new StringBuilder();
+
+            var namespaces = new XmlSerializerNamespaces(new[]
+            {
+                XmlQualifiedName.Empty
+            });
+
+            xmlSerializer.Serialize(new StringWriter(sb), customExport, namespaces);
+
+            return sb.ToString().TrimEnd();
+        }
+
 
         public static string GetProductsInRange(ProductShopContext context)
         {

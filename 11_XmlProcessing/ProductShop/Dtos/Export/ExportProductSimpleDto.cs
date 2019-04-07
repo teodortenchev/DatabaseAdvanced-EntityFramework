@@ -5,6 +5,7 @@ namespace ProductShop.Dtos.Export
     [XmlType("Product")]
     public class ExportProductSimpleDto
     {
+      
         [XmlElement("name")]
         public string Name { get; set; }
 

@@ -3,10 +3,13 @@
 namespace CarDealer.Dtos.Export
 {
     [XmlType("sale")]
-    public class ExportSaleWithDiscountDto : ExportCarWithDistanceDto
+    public class ExportSaleWithDiscountDto
     {
+        [XmlElement("car")]
+        public ExportCarAttributesDto Car { get; set; }
+
         [XmlElement("discount")]
-        public decimal Discount { get; set; }
+        public string Discount { get; set; }
 
         [XmlElement("customer-name")]
         public string CustomerName { get; set; }
@@ -15,6 +18,8 @@ namespace CarDealer.Dtos.Export
         public decimal Price { get; set; }
 
         [XmlElement("price-with-discount")]
-        public decimal PriceWithDiscount { get; set; }
+        public string PriceWithDiscount { get; set; }
     }
+
+
 }

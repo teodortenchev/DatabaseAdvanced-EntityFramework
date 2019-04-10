@@ -64,7 +64,80 @@
 
         public static string ImportUsers(VaporStoreDbContext context, string jsonString)
         {
-            throw new NotImplementedException();
+            var userDtos = JsonConvert.DeserializeObject<ImportUserDto[]>(jsonString);
+
+            List<User> users = new List<User>();
+
+            var sb = new StringBuilder();
+
+            foreach (var userDto in userDtos)
+            {
+                bool validCardType = true;
+
+                if (!IsValid(userDto) || userDto.Cards.Count == 0)
+                {
+                    sb.AppendLine("Invalid Data");
+                    continue;
+                }
+
+                User user = new User
+                {
+                    FullName = userDto.FullName,
+                    Username = userDto.Username,
+                    Email = userDto.Email,
+                    Age = userDto.Age
+                };
+
+
+
+                foreach (var card in userDto.Cards)
+                {
+                    if (!IsValid(card) || userDto.Cards.Any(x => x.Type != "Debit" && x.Type != "Credit"))
+                    {
+                        sb.AppendLine("Invalid Data");
+                        validCardType = false;
+                        break;
+                    }
+                }
+
+                if (validCardType == false)
+                {
+                    continue;
+                }
+
+                foreach (var card in userDto.Cards)
+                {
+                    user.Cards.Add(GetCard(context, card));
+                }
+
+                sb.AppendLine($"Imported {user.Username} with {user.Cards.Count} cards");
+
+                users.Add(user);
+
+            }
+            context.Users.AddRange(users);
+            context.SaveChanges();
+
+            string result = sb.ToString().TrimEnd();
+
+            return result;
+        }
+
+        private static Card GetCard(VaporStoreDbContext context, ImportCardDto currentCard)
+        {
+            Card card = context.Cards.FirstOrDefault(x => x.Number == currentCard.Number);
+
+            if (card == null)
+            {
+                card = new Card
+                {
+                    Number = currentCard.Number,
+                    Cvc = currentCard.Cvc,
+                    Type = Enum.Parse<CardType>(currentCard.Type)
+                };
+            }
+
+            return card;
         }
 
         public static string ImportPurchases(VaporStoreDbContext context, string xmlString)

@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Xml.Serialization;
     using Data;
     using Newtonsoft.Json;
     using VaporStore.Data.Models;
@@ -142,7 +144,79 @@
 
         public static string ImportPurchases(VaporStoreDbContext context, string xmlString)
         {
-            throw new NotImplementedException();
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(ImportPurchaseDto[]), new XmlRootAttribute("Purchases"));
+
+            var purchaseDtos = (ImportPurchaseDto[])xmlSerializer.Deserialize(new StringReader(xmlString));
+
+            List<Purchase> purchases = new List<Purchase>();
+
+            var sb = new StringBuilder();
+
+            foreach (var purchaseDto in purchaseDtos)
+            {
+                if (!IsValid(purchaseDto) && purchaseDto.Type != "Retail" && purchaseDto.Type != "Digital")
+                {
+                    sb.AppendLine("Invalid Data");
+                    continue;
+                }
+
+                var game = GetGame(context, purchaseDto.Title);
+
+                var card = CheckCard(context, purchaseDto.Card);
+
+                if (game == null || card == null)
+                {
+                    sb.AppendLine("Invalid Data");
+                    continue;
+                }
+
+                var user = context.Users.FirstOrDefault(x => x.Cards.Any(c => c.Number == card.Number));
+
+                Purchase purchase = new Purchase
+                {
+                    Type = Enum.Parse<PurchaseType>(purchaseDto.Type),
+                    ProductKey = purchaseDto.Key,
+                    Date = DateTime.ParseExact(purchaseDto.Date, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                    Card = card,
+                    Game = game,
+                };
+
+                purchases.Add(purchase);
+
+                sb.AppendLine($"Imported {game.Name} for {user.Username}");
+
+            }
+
+            context.Purchases.AddRange(purchases);
+            context.SaveChanges();
+
+            string result = sb.ToString().TrimEnd();
+
+            return result;
+        }
+
+        private static Card CheckCard(VaporStoreDbContext context, string cardNumber)
+        {
+            Card card = context.Cards.FirstOrDefault(x => x.Number == cardNumber);
+
+            if (card == null)
+            {
+                return null;
+            }
+
+            return card;
+        }
+
+        private static Game GetGame(VaporStoreDbContext context, string title)
+        {
+            Game game = context.Games.FirstOrDefault(x => x.Name == title);
+
+            if (game == null)
+            {
+                return null;
+            }
+
+            return game;
         }
 
         private static bool IsValid(object entity)

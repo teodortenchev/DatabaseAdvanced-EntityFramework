@@ -21,6 +21,8 @@
                 options
                     .UseSqlServer(Configuration.ConnectionString);
             }
+
+            options.EnableSensitiveDataLogging();
         }
 
         public DbSet<Game> Games { get; set; }

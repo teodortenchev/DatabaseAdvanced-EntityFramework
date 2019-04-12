@@ -178,6 +178,78 @@
             return result;
         }
 
+        public static string ImportCustomerTickets(CinemaContext context, string xmlString)
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(ImportCustomerTicketDto[]), new XmlRootAttribute("Customers"));
+
+            var customerDtos = (ImportCustomerTicketDto[])xmlSerializer.Deserialize(new StringReader(xmlString));
+
+            List<Customer> customers = new List<Customer>();
+
+            var sb = new StringBuilder();
+
+            foreach (var dto in customerDtos)
+            {
+                if (!IsValid(dto))
+                {
+                    sb.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                bool invalidTicket = false;
+
+
+                ICollection<Ticket> tickets = new HashSet<Ticket>();
+
+                HashSet<int> projectionIds = context.Projections.Select(x => x.Id).ToHashSet();
+
+                Customer customer = new Customer
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Age = dto.Age,
+                    Balance = dto.Balance
+                };
+
+
+                foreach (var ticket in dto.Tickets)
+                {
+                    if (!projectionIds.Contains(ticket.ProjectionId))
+                    {
+                        invalidTicket = true;
+                        break;
+                    }
+
+                    tickets.Add(new Ticket
+                    {
+                        ProjectionId = ticket.ProjectionId,
+                        Customer = customer,
+                        Price = ticket.Price
+                    });
+                }
+
+                if (invalidTicket)
+                {
+                    sb.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                customer.Tickets = tickets;
+
+                customers.Add(customer);
+
+                sb.AppendLine(string.Format(SuccessfulImportCustomerTicket, customer.FirstName, customer.LastName, customer.Tickets.Count));
+            }
+
+            context.Customers.AddRange(customers);
+            context.SaveChanges();
+
+            var result = sb.ToString().TrimEnd();
+
+            return result;
+        }
+
+
         private static Hall GetHall(CinemaContext context, int hallId)
         {
             var hall = context.Halls.FirstOrDefault(x => x.Id == hallId);
@@ -191,12 +263,6 @@
 
             return movie;
         }
-
-        public static string ImportCustomerTickets(CinemaContext context, string xmlString)
-        {
-            throw new NotImplementedException();
-        }
-
 
         private static ICollection<Seat> CreateSeats(CinemaContext context, Hall hall, int seats)
         {

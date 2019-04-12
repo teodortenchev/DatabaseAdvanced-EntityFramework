@@ -13,7 +13,7 @@ namespace Cinema.Data.Models
         }
 
         public int Id { get; set; }
-
+            
         [Required]
         [MinLength(3), MaxLength(20)]
         public string FirstName { get; set; }
